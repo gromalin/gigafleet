@@ -1,0 +1,22 @@
+CONTEXTE
+
+GigaFleet est un jeu en ligne de commande de gestion de flotte d'engins spatiaux.
+Le but est de créer des relations commerciales entre les planète, avec un grand nombre de vaisseaux.
+
+TUTORIAL
+
+status : affiche l'argent restant, le nombre de vaisseaux et de planetes
+ships list : liste les vaisseaux
+planets list : liste les planètes
+planet buy <planet name> <ship class name>
+
+CONCEPTION
+
+Classes
+
+  - Player
+  - Ship
+    - SlowShip
+    - FastShip
+  - Site
+    - Planet
