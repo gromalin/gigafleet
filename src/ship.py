@@ -8,6 +8,7 @@ import elem
 import message
 import planet
 import interactive
+import universe
 
 class Ship(elem.Elem, interactive.Interactive):
     id = 0
@@ -21,8 +22,7 @@ class Ship(elem.Elem, interactive.Interactive):
         self.dst_site = None
 
     def do_go(self, dst_site_name):
-        result =  [planet for planet in player.planets if planet.name == dst_site_name]
-        self.dst_site = dst_site
+        self.dst_site  =  universe.Universe.get_universe().get_planet(dst_site_name)
 
     def __str__(self):
         return self.name
@@ -68,12 +68,14 @@ class TestShipMethods(unittest.TestCase):
     ship = None
 
     def setUp(self):
+
+
         self.ship0 = Ship(100, 100)
         self.ship1 = Ship(100,00)
         self.slow_ship0 = SlowShip(100, 100)
         self.fast_ship0 = FastShip(100, 100)
-        self.planet0 = planet.Planet(200, 200)
-        self.planet1 = planet.Planet(103.54, 103.54)
+        #self.planet0 = planet.Planet(200, 200)
+        #self.planet1 = planet.Planet(103.54, 103.54)
 
     def tearDown(self):
         Ship.id = 0
@@ -99,7 +101,7 @@ class TestShipMethods(unittest.TestCase):
         self.assertEqual("Ship_0 (100,100) (speed : 1, price : 0, dest site: None)", self.ship0.status())
 
     def test_do_go(self):
-        self.ship0.do_go(self.planet0)
+        self.ship0.do_go("Planet_1")
         self.assertEquals(self.ship0.x, 100)
         self.assertEquals(self.ship0.y, 100)
 
@@ -107,15 +109,18 @@ class TestShipMethods(unittest.TestCase):
         self.assertAlmostEquals(self.ship0.x, 100.71, 2)
         self.assertAlmostEquals(self.ship0.y, 100.71, 2)
 
-        self.fast_ship0.do_go(self.planet0)
+        self.fast_ship0.do_go("Planet_1")
         self.fast_ship0.run()
         self.assertAlmostEquals(self.fast_ship0.x, 103.54, 2)
         self.assertAlmostEquals(self.fast_ship0.y, 103.54, 2)
 
         # Test message planet quand arrivé
-        self.fast_ship0.do_go(self.planet1)
+        self.fast_ship0.do_go("Planet_1")
+        (self.fast_ship0.x, self.fast_ship0.y) = (200,200)
         self.fast_ship0.run()
-        self.assertEquals(self.planet1.get_msg().__str__(), "Message envoyé par FastShip_0 : demande d'atterissage")
+        self.assertEquals("Message envoyé par FastShip_0 : demande d'atterissage",
+                          universe.Universe.get_universe().get_planet("Planet_1").get_msg().__str__())
+
 
 if __name__ == '__main__':
     unittest.main()

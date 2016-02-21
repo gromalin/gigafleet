@@ -55,8 +55,7 @@ class Player (interactive.Interactive):
 
     def buy_ship(self,planet_name, ship_class_name):
         planet = self.universe.get_planet(planet_name)
-        if(len(planet) != 1):
-            print("Planete {} est inconnue !".format(planet_name))
+        if(planet == None):
             return None
 
         try:
@@ -69,7 +68,6 @@ class Player (interactive.Interactive):
             print("Argent insuffisant, {} ne couvre pas {}".format(self.money, ship_class.price))
             return None
 
-        planet = planet[0]
         self.money = self.money - ship_class.price
         ship_tmp = planet.build_ship(ship_class)
         self.ships.append(ship_tmp)

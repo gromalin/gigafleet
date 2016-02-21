@@ -21,7 +21,7 @@ class GigaFleetCmd(cmd.Cmd):
     def __init__(self):
         cmd.Cmd.__init__(self)
         self.focus = []
-        self.cur_universe = universe.Universe("VoieLactée")
+        self.cur_universe = universe.Universe.get_universe()
 
         self.cur_player = player.Player("Thomas", self.cur_universe)
         self.update_prompt()
@@ -56,8 +56,6 @@ class GigaFleetCmd(cmd.Cmd):
         if (len(self.focus) != 0):
             self.focus.pop()
         self.update_prompt()
-
-
 
     def do_status(self, param):
         self.focus[-1].do_status(param)
@@ -108,12 +106,18 @@ class TestGigaFleetCmdMethods(unittest.TestCase):
     def test_update_prompt(self):
         self.assertEqual("Thomas@VoieLactée/>", self.giga_cmd.prompt)
 
-    def test_do_in(self):
+    def test_do_in_planet(self):
         self.assertEqual("Thomas@VoieLactée/>",self.giga_cmd.prompt)
 
         self.giga_cmd.do_add("Planet_0 FastShip")
         self.giga_cmd.do_in("ship FastShip_0")
         self.assertEqual("Thomas@VoieLactée/FastShip_0/>",self.giga_cmd.prompt)
+
+    def test_do_in_ship(self):
+        self.assertEqual("Thomas@VoieLactée/>",self.giga_cmd.prompt)
+
+        self.giga_cmd.do_in("planet Planet_0")
+        self.assertEqual("Thomas@VoieLactée/Planet_0/>",self.giga_cmd.prompt)
 
 
     def test_do_exit(self):

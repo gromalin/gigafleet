@@ -17,6 +17,9 @@ class Planet(giga_site.GigaSite):
         self.slots = []
 
     def __str__(self):
+        return self.name
+
+    def do_status(self):
         return "{} ({},{})".format(
             self.name, self.x, self.y)
 
@@ -35,13 +38,13 @@ class TestPlanetMethods(unittest.TestCase):
         Planet.id = 0
 
     def test_planet(self):
-        self.assertEquals('Planet_0 (100,100)', self.planet.__str__())
+        self.assertEquals('Planet_0', self.planet.__str__())
         self.assertEquals(self.planet.x, 100)
         self.assertEquals(self.planet.y, 100)
         self.assertEquals(len(self.planet.slots), 0)
         self.assertEquals(len(self.planet.under_construction), 0)
         self.assertEquals(self.planet.__str__(),
-                          "Planet_0 (100,100)")
+                          "Planet_0")
         self.planet.build_ship(ship.FastShip)
         self.assertEquals(len(self.planet.slots), 1)
         self.assertEquals(self.planet.slots[0].name, "FastShip_0")
