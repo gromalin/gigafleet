@@ -1,0 +1,7 @@
+==== Class Hierarchy ====
+
+  Elem
+    |-Ship
+    |-GigaSite
+      |- Planet
+      |- Gateway
