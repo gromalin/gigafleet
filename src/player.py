@@ -5,45 +5,29 @@ import time
 import unittest
 
 import planet
+import universe
 import ship
+import interactive
 
 
-def worker(player):
-    while(True):
-        #print "worker"
-        for planet in player.planets:
-            planet.run()
-        for ship in player.ships:
-            ship.run()
-        #print "worker 2"
-        time.sleep(1)
+class Player (interactive.Interactive):
 
-class Player:
-
-    def __init__(self, name):
+    def __init__(self, name, universe):
         self.name = name
         self.money = 10000
-        self.planets = []
         self.ships = []
+        self.universe = universe
 
     def __str__(self):
         return self.name
 
     def status(self):
-        return "Money : {} | Nb Ships : {} | Nb Planets : {}".format(
-            self.money, len(self.ships), len(self.planets))
+        return "Money : {} | Nb Ships : {}".format(
+            self.money, len(self.ships))
 
-    def add_planet(self, planet):
-        self.planets.append(planet)
 
     def do_list(self, param):
-        if(param == "planets"):
-            print(self.list_planets())
-        elif (param == "ships"):
-            print(self.list_ships())
-
-    def list_planets(self):
-        return ", ".join([planet.__str__() for planet in self.planets])
+        print(self.list_ships())
 
     def list_ships(self):
         return "Liste des vaisseaux : "+", ".join([ship.__str__() for ship in self.ships])
@@ -51,22 +35,26 @@ class Player:
     def detail_ship(self, ship_name):
         return ", ".join([ship.__str__() for ship in self.ships if ship.name == ship_name])
 
-    def get_planet(self, name):
-        return [planet for planet in self.planets if planet.name == name]
+    def get_ship(self, ship_name):
+        ships = [ship for ship in self.ships if ship.name == ship_name]
+        if(len(ships) == 1):
+            return ships[0]
+        else:
+            return None
 
-    def do_status(self,param):
-        print(self.name)
 
     def do_in(self,param):
         result =  [ship for ship in self.ships if ship.name == param]
-        if(result is not None):
+        if(len(result) == 1):
             return result[0]
+        else:
+            print("Ship {} not found".format(param))
 
     def do_add(self,param):
         self.buy_ship(param.partition(" ")[0],param.partition(" ")[2])
 
     def buy_ship(self,planet_name, ship_class_name):
-        planet = self.get_planet(planet_name)
+        planet = self.universe.get_planet(planet_name)
         if(len(planet) != 1):
             print("Planete {} est inconnue !".format(planet_name))
             return None
@@ -90,43 +78,39 @@ class Player:
 
 
 class TestPlayerMethods(unittest.TestCase):
-    def test_status(self):
-        player = Player("Thomas")
-        self.assertEquals(player.status(),
-                          "Money : 10000 | Nb Ships : 0 | Nb Planets : 0")
 
-    def test_add_planet(self):
-        player = Player("Thomas")
-        planet1 = planet.Planet(100, 100)
-        player.add_planet(planet1)
-        planet2 = planet.Planet(200, 200)
-        player.add_planet(planet2)
-        self.assertEquals(len(player.planets), 2)
-        self.assertEquals(1, len(player.get_planet("Planet_0")))
-        self.assertEquals(1, len(player.get_planet("Planet_1")))
-        self.assertEquals(0, len(player.get_planet("Planet_2")))
+    def setUp(self):
+        cur_universe = universe.Universe("Voie lactée")
+
+        self.player = Player("Thomas", cur_universe)
+
+    def test_status(self):
+        self.assertEquals(self.player.status(),
+                          "Money : 10000 | Nb Ships : 0")
+
+    def test_buy_ship(self):
 
         # Achat OK
-        ship = player.buy_ship("Planet_0", "FastShip")
+        ship = self.player.buy_ship("Planet_0", "FastShip")
         self.assertIsNotNone(ship)
-        self.assertEquals(player.money, 9900)
-        self.assertEquals(len(player.ships), 1)
+        self.assertEquals(self.player.money, 9900)
+        self.assertEquals(len(self.player.ships), 1)
 
         # Planete inexistante
-        ship = player.buy_ship("Planet_2", "FastShip")
+        ship = self.player.buy_ship("Planet_2", "FastShip")
         self.assertIsNone(ship)
-        self.assertEquals(player.money, 9900)
+        self.assertEquals(self.player.money, 9900)
 
         # Type vaisseau inexistant
-        ship = player.buy_ship("Planet_0", "NoShip")
+        ship = self.player.buy_ship("Planet_0", "NoShip")
         self.assertIsNone(ship)
-        self.assertEquals(player.money, 9900)
+        self.assertEquals(self.player.money, 9900)
 
         # Plus d'argent
-        player.money = 0
-        ship = player.buy_ship("Planet_0", "FastShip")
+        self.player.money = 0
+        ship = self.player.buy_ship("Planet_0", "FastShip")
         self.assertIsNone(ship)
-        self.assertEquals(player.money, 0)
+        self.assertEquals(self.player.money, 0)
 
 
 if __name__ == '__main__':

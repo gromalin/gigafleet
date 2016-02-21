@@ -10,7 +10,7 @@ import unittest
 
 import planet
 import player
-
+import universe
 
 def signal_handler(signal, frame):
     print('You pressed Ctrl+C!')
@@ -21,48 +21,59 @@ class GigaFleetCmd(cmd.Cmd):
     def __init__(self):
         cmd.Cmd.__init__(self)
         self.focus = []
-        self.cur_player = player.Player("Thomas")
-        self.prompt = ">"
+        self.cur_universe = universe.Universe("VoieLactée")
+
+        self.cur_player = player.Player("Thomas", self.cur_universe)
+        self.update_prompt()
 
 
-        planet_1 = planet.Planet(100, 100)
-        self.cur_player.add_planet(planet_1)
-        planet_2 = planet.Planet(200, 200)
-        self.cur_player.add_planet(planet_2)
-
-    def do_in(self, param):
-        if(self.focus == []):
-            self.focus.append(self.cur_player)
-        else:
-            result = self.focus[-1].do_in(param)
-            if(result is not None):
-                self.focus.append(result)
-        self.prompt = ""
+    def update_prompt(self):
+        self.prompt = "{}@{}/".format(self.cur_player, self.cur_universe)
         for it in self.focus:
             self.prompt = self.prompt + it.__str__() + "/"
         self.prompt = self.prompt + ">"
-        #self.prompt = "{}".format(*self.focus, sep="|") + ">"
 
+    def do_in(self, param):
+        params = param.partition(" ")
+
+        # recursive
+        if(len(self.focus) != 0):
+            result = self.focus[-1].do_in(param)
+            if(result is not None):
+                self.focus.append(result)
+        else:
+            if(params[0] == "planet"):
+                planet = self.cur_universe.get_planet(params[2])
+                if(planet is not None):
+                    self.focus.append(planet)
+            elif(params[0] == "ship"):
+                ship = self.cur_player.get_ship(params[2])
+                if(ship is not None):
+                    self.focus.append(ship)
+        self.update_prompt()
 
     def do_exit(self, param):
         if (len(self.focus) != 0):
             self.focus.pop()
-            if (len(self.focus) != 0):
-                self.prompt = "{}".format(*self.focus, sep="|") + ">"
-            else:
-                self.prompt = ">"
+        self.update_prompt()
+
 
 
     def do_status(self, param):
         self.focus[-1].do_status(param)
         #print(self.cur_player.status())
 
+    def do_go(self, param):
+        self.focus[-1].do_go(param)
+        #print(self.cur_player.status())
+
     def do_list(self, param):
         self.focus[-1].do_list(param)
         #print(self.cur_player.status())
 
+    #FIXME no recursivity, hard linked to cur_player
     def do_add(self, param):
-        self.focus[-1].do_add(param)
+        self.cur_player.do_add(param)
         #print(self.cur_player.status())
 
     def do_ships(self, param):
@@ -90,19 +101,29 @@ class TestGigaFleetCmdMethods(unittest.TestCase):
 
     def setUp(self):
         self.giga_cmd = GigaFleetCmd()
+    def tearDown(self):
+        self.giga_cmd = None
+        planet.Planet.id = 0
+
+    def test_update_prompt(self):
+        self.assertEqual("Thomas@VoieLactée/>", self.giga_cmd.prompt)
 
     def test_do_in(self):
-        self.giga_cmd.do_in("")
-        self.assertIs(self.giga_cmd.cur_player, self.giga_cmd.focus[-1])
+        self.assertEqual("Thomas@VoieLactée/>",self.giga_cmd.prompt)
+
+        self.giga_cmd.do_add("Planet_0 FastShip")
+        self.giga_cmd.do_in("ship FastShip_0")
+        self.assertEqual("Thomas@VoieLactée/FastShip_0/>",self.giga_cmd.prompt)
+
 
     def test_do_exit(self):
         self.giga_cmd.do_exit("")
-        self.assertEqual(">",self.giga_cmd.prompt)
+        self.assertEqual("Thomas@VoieLactée/>",self.giga_cmd.prompt)
         self.assertEqual([],self.giga_cmd.focus)
 
-        self.giga_cmd.do_in("")
+        self.giga_cmd.do_in("planet Planet_0")
         self.giga_cmd.do_exit("")
-        self.assertEqual(">",self.giga_cmd.prompt)
+        self.assertEqual("Thomas@VoieLactée/>",self.giga_cmd.prompt)
         self.assertEqual([],self.giga_cmd.focus)
 
 if __name__ == '__main__':
@@ -119,7 +140,7 @@ if __name__ == '__main__':
     else:
 
         cmd = GigaFleetCmd()
-        t = threading.Thread(target=player.worker, args=(cmd.cur_player,))
+        t = threading.Thread(target=universe.worker, args=(cmd.cur_universe,))
         t.daemon = True
         t.start()
 

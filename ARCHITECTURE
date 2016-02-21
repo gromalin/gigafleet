@@ -1,7 +1,14 @@
 ==== Class Hierarchy ====
 
+  Universe
   Elem
     |-Ship
     |-GigaSite
       |- Planet
       |- Gateway
+
+
+A player belong to one universe (fixed one, gonna be variable later)
+
+
+

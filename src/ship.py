@@ -7,8 +7,9 @@ import unittest
 import elem
 import message
 import planet
+import interactive
 
-class Ship(elem.Elem):
+class Ship(elem.Elem, interactive.Interactive):
     id = 0
     speed = 1
     price = 0
@@ -19,7 +20,8 @@ class Ship(elem.Elem):
         self.__class__.id = self.__class__.id + 1
         self.dst_site = None
 
-    def go(self, dst_site):
+    def do_go(self, dst_site_name):
+        result =  [planet for planet in player.planets if planet.name == dst_site_name]
         self.dst_site = dst_site
 
     def __str__(self):
@@ -96,8 +98,8 @@ class TestShipMethods(unittest.TestCase):
     def test_status(self):
         self.assertEqual("Ship_0 (100,100) (speed : 1, price : 0, dest site: None)", self.ship0.status())
 
-    def test_go(self):
-        self.ship0.go(self.planet0)
+    def test_do_go(self):
+        self.ship0.do_go(self.planet0)
         self.assertEquals(self.ship0.x, 100)
         self.assertEquals(self.ship0.y, 100)
 
@@ -105,13 +107,13 @@ class TestShipMethods(unittest.TestCase):
         self.assertAlmostEquals(self.ship0.x, 100.71, 2)
         self.assertAlmostEquals(self.ship0.y, 100.71, 2)
 
-        self.fast_ship0.go(self.planet0)
+        self.fast_ship0.do_go(self.planet0)
         self.fast_ship0.run()
         self.assertAlmostEquals(self.fast_ship0.x, 103.54, 2)
         self.assertAlmostEquals(self.fast_ship0.y, 103.54, 2)
 
         # Test message planet quand arrivé
-        self.fast_ship0.go(self.planet1)
+        self.fast_ship0.do_go(self.planet1)
         self.fast_ship0.run()
         self.assertEquals(self.planet1.get_msg().__str__(), "Message envoyé par FastShip_0 : demande d'atterissage")
 
