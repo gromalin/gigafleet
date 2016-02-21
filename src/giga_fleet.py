@@ -30,9 +30,19 @@ class GigaFleetCmd(cmd.Cmd):
         planet_2 = planet.Planet(200, 200)
         self.cur_player.add_planet(planet_2)
 
-    def do_go(self, param):
-        self.focus.append(self.cur_player)
-        self.prompt = "{}".format(*self.focus, sep="|") + ">"
+    def do_in(self, param):
+        if(self.focus == []):
+            self.focus.append(self.cur_player)
+        else:
+            result = self.focus[-1].do_in(param)
+            if(result is not None):
+                self.focus.append(result)
+        self.prompt = ""
+        for it in self.focus:
+            self.prompt = self.prompt + it.__str__() + "/"
+        self.prompt = self.prompt + ">"
+        #self.prompt = "{}".format(*self.focus, sep="|") + ">"
+
 
     def do_exit(self, param):
         if (len(self.focus) != 0):
@@ -75,27 +85,25 @@ class GigaFleetCmd(cmd.Cmd):
 
 
 class TestGigaFleetCmdMethods(unittest.TestCase):
-    def test_init(self):
-        # FIXME je ne sais pas tester proprement pour le moment
-        return
-        cmd = GigaFleetCmd()
 
+    giga_cmd = None
 
-        self.assertTrue(cmd is not None)
-        cmd.do_planets('list')
-        cmd.do_status('')
-        cmd.do_planet(('buy Planet_1 FastShip'))
-        self.assertEquals(len(cmd.cur_player.ships), 1)
-        cmd.do_planet(('buy Planet_1 FastShip'))
-        self.assertEquals(len(cmd.cur_player.ships), 2)
-        cmd.do_planet(('buy Planet_1 FastShip'))
-        self.assertEquals(len(cmd.cur_player.ships), 3)
-        cmd.do_planet(('buy Planet_1 NoShip'))
-        self.assertEquals(len(cmd.cur_player.ships), 3)
-        cmd.cur_player.list_ships()
+    def setUp(self):
+        self.giga_cmd = GigaFleetCmd()
 
+    def test_do_in(self):
+        self.giga_cmd.do_in("")
+        self.assertIs(self.giga_cmd.cur_player, self.giga_cmd.focus[-1])
 
+    def test_do_exit(self):
+        self.giga_cmd.do_exit("")
+        self.assertEqual(">",self.giga_cmd.prompt)
+        self.assertEqual([],self.giga_cmd.focus)
 
+        self.giga_cmd.do_in("")
+        self.giga_cmd.do_exit("")
+        self.assertEqual(">",self.giga_cmd.prompt)
+        self.assertEqual([],self.giga_cmd.focus)
 
 if __name__ == '__main__':
 

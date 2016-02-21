@@ -57,6 +57,11 @@ class Player:
     def do_status(self,param):
         print(self.name)
 
+    def do_in(self,param):
+        result =  [ship for ship in self.ships if ship.name == param]
+        if(result is not None):
+            return result[0]
+
     def do_add(self,param):
         self.buy_ship(param.partition(" ")[0],param.partition(" ")[2])
 

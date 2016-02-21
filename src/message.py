@@ -4,7 +4,7 @@
 
 import unittest
 
-import ship
+import elem
 
 class Message:
 
@@ -27,16 +27,19 @@ class Message:
         return "Message envoyé par {} : {}".format(self.sender.name, Message.msg_text[self.type])
 
 class TestMessageMethods(unittest.TestCase):
-    def test_msg(self):
 
-        ship0 = ship.Ship(100, 100)
+    elem = None
 
-        msg = Message(ship0, Message.LANDING_REQUEST)
-        self.assertEquals(msg.type, Message.LANDING_REQUEST)
+    def setUp(self):
+        self.elem = elem.Elem(100, 100)
 
     def tearDown(self):
-            ship.Ship.id = 0
+        elem.Elem.id = 0
 
+    def test_msg(self):
+
+        msg = Message(self.elem, Message.LANDING_REQUEST)
+        self.assertEquals(msg.type, Message.LANDING_REQUEST)
 
 if __name__ == '__main__':
     unittest.main()

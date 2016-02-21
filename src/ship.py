@@ -6,7 +6,7 @@ import unittest
 
 import elem
 import message
-
+import planet
 
 class Ship(elem.Elem):
     id = 0
@@ -23,8 +23,11 @@ class Ship(elem.Elem):
         self.dst_site = dst_site
 
     def __str__(self):
-        return "{} (speed : {}, price : {})".format(
-            self.id, self.speed, self.price)
+        return self.name
+
+    def status(self):
+        return "{} (speed : {}, price : {}, dest site: {})".format(
+            super(Ship, self).status(), self.speed, self.price, self.dst_site)
 
     def run(self):
 
@@ -57,9 +60,9 @@ class FastShip(Ship):
         Ship.__init__(self, x, y)
 
 
-from src import planet
 
 class TestShipMethods(unittest.TestCase):
+
     ship = None
 
     def setUp(self):
@@ -86,6 +89,12 @@ class TestShipMethods(unittest.TestCase):
 
         self.assertEquals("SlowShip_0", self.slow_ship0.name)
         self.assertEquals("FastShip_0", self.fast_ship0.name)
+
+    def test___str__(self):
+        self.assertEqual("Ship_0", self.ship0.__str__())
+
+    def test_status(self):
+        self.assertEqual("Ship_0 (100,100) (speed : 1, price : 0, dest site: None)", self.ship0.status())
 
     def test_go(self):
         self.ship0.go(self.planet0)
