@@ -36,8 +36,10 @@ class GigaSite(elem.Elem):
                         self.name, msg.sender.name))
                     return
 
+                msg.sender.post_msg(message.Message(self, message.Message.LANDING_ACCEPTED))
                 self.slots.append(msg.sender)
-
+            elif(msg.type == message.Message.LEAVING):
+                self.slots.remove(msg.sender)
 
 class TestGigaSiteMethods(unittest.TestCase):
     site = None

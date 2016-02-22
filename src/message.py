@@ -12,11 +12,16 @@ class Message:
     msg_text = []
 
     LANDING_REQUEST = 0
-    msg_text.insert(LANDING_REQUEST, "demande d'atterissage")
+    msg_text.insert(LANDING_REQUEST, "landing request")
 
     LANDING_REFUSED = 1
-    msg_text.insert(LANDING_REFUSED, "demande d'atterissage refusée")
+    msg_text.insert(LANDING_REFUSED, "landing request denied")
 
+    LANDING_ACCEPTED = 2
+    msg_text.insert(LANDING_ACCEPTED, "landing accepted")
+
+    LEAVING = 3
+    msg_text.insert(LEAVING, "leaving")
 
     def __init__(self, sender, type, content = None):
         self.sender = sender
@@ -24,7 +29,7 @@ class Message:
         self.content = content
 
     def __str__(self):
-        return "Message envoyé par {} : {}".format(self.sender.name, Message.msg_text[self.type])
+        return "Message sent by {} : {}".format(self.sender.name, Message.msg_text[self.type])
 
 class TestMessageMethods(unittest.TestCase):
 

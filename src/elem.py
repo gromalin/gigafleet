@@ -24,6 +24,7 @@ class Elem:
         return (self.x, self.y)
 
     def post_msg(self, msg):
+        print(msg)
         self.queue.put(msg)
 
     def status(self):

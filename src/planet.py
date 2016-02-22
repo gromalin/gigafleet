@@ -19,12 +19,17 @@ class Planet(giga_site.GigaSite):
     def __str__(self):
         return self.name
 
-    def do_status(self):
-        return "{} ({},{})".format(
+    def status(self):
+        result = "{} ({},{})".format(
             self.name, self.x, self.y)
+        for ship in self.slots:
+            result =  result + "\n  " + ship.__str__()
+        return result
+    def do_status(self, param):
+        print(self.status())
 
     def build_ship(self, ship_class):
-        ship = ship_class(self.x, self.y)
+        ship = ship_class(self)
         self.slots.append(ship)
         return ship
 
