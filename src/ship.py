@@ -39,18 +39,19 @@ class Ship(elem.Elem, interactive.Interactive):
         if (self.dst_site is not None):
             (go_x, go_y) = self.dst_site.get_pos()
             distance = elem.Elem.distance(self, self.dst_site)
-            if (distance > 1):
+            if distance > 1:
                 angle = math.atan((go_y - self.y) / (go_x - self.x))
                 #print("angle : {}".format(angle * 360 / (2*3.14)))
                 #print("cos {}, sin {}".format(math.cos(angle), math.sin(angle)))
 
+                # right part of the quadrant
                 if(go_x -self.x > 0):
                     self.x = self.x + math.cos(angle) * (self.speed if distance > self.speed else distance)
+                    self.y = self.y + math.sin(angle) * (self.speed if distance > self.speed else distance)
+
+                # left part of the quadrant
                 else:
                     self.x = self.x - math.cos(angle) * (self.speed if distance > self.speed else distance)
-                if(go_y -self.y > 0):
-                    self.y = self.y + math.sin(angle) * (self.speed if distance > self.speed else distance)
-                else:
                     self.y = self.y - math.sin(angle) * (self.speed if distance > self.speed else distance)
 
 
@@ -128,6 +129,16 @@ class TestShipMethods(unittest.TestCase):
         self.fast_ship0.run()
         self.assertAlmostEquals(self.fast_ship0.x, 103.54, 2)
         self.assertAlmostEquals(self.fast_ship0.y, 103.54, 2)
+
+        self.fast_ship0.do_go("Planet_0")
+        self.fast_ship0.run()
+        self.assertAlmostEquals(100.00, self.fast_ship0.x, 2)
+        self.assertAlmostEquals(100.00, self.fast_ship0.y, 2)
+
+        self.fast_ship0.do_go("Planet_2")
+        self.fast_ship0.run()
+        self.assertAlmostEquals(103.54, self.fast_ship0.x, 2)
+        self.assertAlmostEquals(96.46, self.fast_ship0.y, 2)
 
         self.fast_ship0.do_go("Planet_0")
         self.fast_ship0.run()

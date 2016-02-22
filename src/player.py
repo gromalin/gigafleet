@@ -96,7 +96,7 @@ class TestPlayerMethods(unittest.TestCase):
         self.assertEquals(len(self.player.ships), 1)
 
         # Planete inexistante
-        ship = self.player.buy_ship("Planet_2", "FastShip")
+        ship = self.player.buy_ship("Planet_3", "FastShip")
         self.assertIsNone(ship)
         self.assertEquals(self.player.money, 9900)
 
