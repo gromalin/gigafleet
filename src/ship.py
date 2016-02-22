@@ -31,17 +31,32 @@ class Ship(elem.Elem, interactive.Interactive):
         return "{} (speed : {}, price : {}, dest site: {})".format(
             super(Ship, self).status(), self.speed, self.price, self.dst_site)
 
+    def do_status(self, param):
+        print(self.status())
+
     def run(self):
 
         if (self.dst_site is not None):
             (go_x, go_y) = self.dst_site.get_pos()
-            if (abs(go_x - self.x) > 0.1
-                or abs(go_y - self.y) > 0.1):
+            distance = elem.Elem.distance(self, self.dst_site)
+            if (distance > 1):
                 angle = math.atan((go_y - self.y) / (go_x - self.x))
-                self.x = self.x + math.cos(angle) * self.speed
-                self.y = self.y + math.sin(angle) * self.speed
+                #print("angle : {}".format(angle * 360 / (2*3.14)))
+                #print("cos {}, sin {}".format(math.cos(angle), math.sin(angle)))
+
+                if(go_x -self.x > 0):
+                    self.x = self.x + math.cos(angle) * (self.speed if distance > self.speed else distance)
+                else:
+                    self.x = self.x - math.cos(angle) * (self.speed if distance > self.speed else distance)
+                if(go_y -self.y > 0):
+                    self.y = self.y + math.sin(angle) * (self.speed if distance > self.speed else distance)
+                else:
+                    self.y = self.y - math.sin(angle) * (self.speed if distance > self.speed else distance)
+
+
             else:
                 self.dst_site.post_msg(message.Message(self, message.Message.LANDING_REQUEST))
+
 
 
 class SlowShip(Ship):
@@ -113,6 +128,11 @@ class TestShipMethods(unittest.TestCase):
         self.fast_ship0.run()
         self.assertAlmostEquals(self.fast_ship0.x, 103.54, 2)
         self.assertAlmostEquals(self.fast_ship0.y, 103.54, 2)
+
+        self.fast_ship0.do_go("Planet_0")
+        self.fast_ship0.run()
+        self.assertAlmostEquals(100.00, self.fast_ship0.x, 2)
+        self.assertAlmostEquals(100.00, self.fast_ship0.y, 2)
 
         # Test message planet quand arrivé
         self.fast_ship0.do_go("Planet_1")

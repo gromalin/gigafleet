@@ -10,5 +10,5 @@
 
 A player belong to one universe (fixed one, gonna be variable later)
 
-
+Ships are linked from the player object and universe object
 

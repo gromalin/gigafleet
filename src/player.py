@@ -71,6 +71,7 @@ class Player (interactive.Interactive):
         self.money = self.money - ship_class.price
         ship_tmp = planet.build_ship(ship_class)
         self.ships.append(ship_tmp)
+        universe.Universe.get_universe().ships.append(ship_tmp)
         print("Fabrication de {} sur {}".format(ship_tmp.name, planet.name))
         return ship_tmp
 
