@@ -7,6 +7,7 @@ import signal
 import sys
 import threading
 import unittest
+import re
 
 import planet
 import player
@@ -33,7 +34,15 @@ class GigaFleetCmd(cmd.Cmd):
             self.prompt = self.prompt + it.__str__() + "/"
         self.prompt = self.prompt + ">"
 
+    def usage(self):
+        print("usage: : in planet <planet_name> or in ship <ship_name>")
+
     def do_in(self, param):
+
+        regex = re.compile('^(planet|ship).*')
+        if not regex.match(param):
+            return self.usage()
+
         params = param.partition(" ")
 
         # recursive
@@ -112,6 +121,9 @@ class TestGigaFleetCmdMethods(unittest.TestCase):
         self.giga_cmd.do_add("Planet_0 FastShip")
         self.giga_cmd.do_in("ship FastShip_0")
         self.assertEqual("Thomas@VoieLactée/FastShip_0/>",self.giga_cmd.prompt)
+
+        self.giga_cmd.do_in("sh_ip FastShip_0")
+
 
     def test_do_in_ship(self):
         self.assertEqual("Thomas@VoieLactée/>",self.giga_cmd.prompt)
