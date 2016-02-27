@@ -7,7 +7,7 @@ import warnings
 import elem
 import message
 import ship
-
+import universe
 
 class GigaSite(elem.Elem):
     id = 0
@@ -25,14 +25,14 @@ class GigaSite(elem.Elem):
 
             if (msg.type == message.Message.LANDING_REQUEST):
                 if (len(self.slots) == self.slots_nb):
-                    warnings.warn("{} -> {} : plus de slots disponibles".format(
+                    print("{} -> {} : plus de slots disponibles".format(
                         self.name, msg.sender.name))
                     msg.sender.post_msg(message.Message(
                         self, message.Message.LANDING_REFUSED))
                     return
 
                 if (msg.sender in self.slots):
-                    warnings.warn("{} -> {} : vaisseau déjà arrimé".format(
+                    print("{} -> {} : vaisseau déjà arrimé".format(
                         self.name, msg.sender.name))
                     return
 
@@ -46,7 +46,7 @@ class TestGigaSiteMethods(unittest.TestCase):
 
     def setUp(self):
         self.site = GigaSite(100, 100)
-        self.ship0 = ship.Ship(100, 100)
+        self.ship0 = ship.Ship(universe.Universe.get_universe().get_planet("Planet_0"))
 
     def tearDown(self):
         GigaSite.id = 0
@@ -66,19 +66,15 @@ class TestGigaSiteMethods(unittest.TestCase):
         self.assertEquals(len(self.site.slots), 1)
 
         # On surcharge l'arrivée
-        self.site.post_msg(message.Message(ship.Ship(100, 100), message.Message.LANDING_REQUEST))
-        self.site.run()
-        self.site.post_msg(message.Message(ship.Ship(100, 100), message.Message.LANDING_REQUEST))
-        self.site.run()
-        self.site.post_msg(message.Message(ship.Ship(100, 100), message.Message.LANDING_REQUEST))
-        self.site.run()
-        self.site.post_msg(message.Message(ship.Ship(100, 100), message.Message.LANDING_REQUEST))
-        self.site.run()
-        ship1 = ship.Ship(100, 100)
-        self.site.post_msg(message.Message(ship1, message.Message.LANDING_REQUEST))
-        self.site.run()
-        print(ship1.get_msg())
-
+        for it in range(5):
+            tmp_ship =  ship.Ship(universe.Universe.get_universe().get_planet("Planet_0"))
+            self.site.post_msg(message.Message(tmp_ship, message.Message.LANDING_REQUEST))
+            self.site.run()
+            # 5 slots, one ship already present
+            if(it < 4):
+                self.assertEquals(message.Message.LANDING_ACCEPTED,tmp_ship.get_msg().type)
+            else:
+                self.assertEquals(message.Message.LANDING_REFUSED,tmp_ship.get_msg().type)
 
 if __name__ == '__main__':
     unittest.main()

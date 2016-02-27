@@ -15,6 +15,11 @@ class Interactive(object):
         return
 
     @abc.abstractmethod
+    def do_trace(self, param):
+        print("No trace command available")
+        return
+
+    @abc.abstractmethod
     def do_status(self, param):
         print("No status command available")
         return

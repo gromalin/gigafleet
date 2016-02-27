@@ -26,6 +26,9 @@ class Ship(elem.Elem, interactive.Interactive):
     RUNNING = 2
     state_text.insert(RUNNING, "ship running")
 
+    UNREACH_DST = 3
+    state_text.insert(UNREACH_DST, "ship has an unreachable destination")
+
 
     def __init__(self, site):
         elem.Elem.__init__(self, site.x, site.y)
@@ -33,12 +36,13 @@ class Ship(elem.Elem, interactive.Interactive):
         self.__class__.id = self.__class__.id + 1
         self.dst_site = site
         self.state = Ship.STOPPED_SLOT
+        self.dst_list = [site.__str__()]
+        self.trace = False
 
-    def do_go(self, dst_site_name):
-        if(self.state == Ship.STOPPED_SLOT):
-            self.state = Ship.RUNNING
-            self.dst_site.post_msg(message.Message(self, message.Message.LEAVING))
-        self.dst_site  =  universe.Universe.get_universe().get_planet(dst_site_name)
+    def do_go(self, param):
+
+        self.dst_list = param.split(" ")
+
 
     def __str__(self):
         return self.name
@@ -47,13 +51,41 @@ class Ship(elem.Elem, interactive.Interactive):
         return "{} (speed : {}, price : {}, dest site: {}, state : {})".format(
             super(Ship, self).status(), self.speed, self.price, self.dst_site, Ship.state_text[self.state])
 
+    def do_trace(self, param):
+        self.trace = not self.trace
+
     def do_status(self, param):
         print(self.status())
 
     def run(self):
 
+        if self.trace:
+            self.do_status("")
+
+        if(self.state == Ship.UNREACH_DST):
+            return
+
+        if(self.state == Ship.STOPPED_SLOT):
+
+
+            if len(self.dst_list) > 1 and \
+                            self.dst_site.__str__() == self.dst_list[0] : # multiple destination, go to the next one
+                old_dst = self.dst_list.pop(0) # pop current destination
+                self.dst_list.append(old_dst)
+
+            if self.dst_site.__str__() != self.dst_list[0]: # if destination has changed
+                self.dst_site.post_msg(message.Message(self, message.Message.LEAVING))
+                self.state = Ship.RUNNING
+
         if (self.state == Ship.RUNNING):
             assert(self.dst_site is not None)
+
+            # New orders
+            if(self.dst_site.__str__() != self.dst_list[0]):
+                self.dst_site = universe.Universe.get_universe().get_planet(self.dst_list[0])
+                if(self.dst_site == None):
+                    self.state == Ship.UNREACH_DST
+
             (go_x, go_y) = self.dst_site.get_pos()
             distance = elem.Elem.distance(self, self.dst_site)
             if distance > 1:
@@ -71,7 +103,6 @@ class Ship(elem.Elem, interactive.Interactive):
                     self.x = self.x - math.cos(angle) * (self.speed if distance > self.speed else distance)
                     self.y = self.y - math.sin(angle) * (self.speed if distance > self.speed else distance)
 
-
             else:
                 self.dst_site.post_msg(message.Message(self, message.Message.LANDING_REQUEST))
                 self.state = Ship.STOPPED_WAITING
@@ -80,6 +111,9 @@ class Ship(elem.Elem, interactive.Interactive):
             msg = self.get_msg()
             if(msg is not None and msg.type == message.Message.LANDING_ACCEPTED and msg.sender == self.dst_site ):
                 self.state = Ship.STOPPED_SLOT
+
+
+
 
 
 class SlowShip(Ship):
@@ -111,6 +145,9 @@ class TestShipMethods(unittest.TestCase):
         self.ship1 = Ship(universe.Universe.get_universe().get_planet("Planet_0"))
         self.slow_ship0 = SlowShip(universe.Universe.get_universe().get_planet("Planet_0"))
         self.fast_ship0 = FastShip(universe.Universe.get_universe().get_planet("Planet_0"))
+        self.planet_0 = universe.Universe.get_universe().get_planet("Planet_0")
+        self.planet_1 = universe.Universe.get_universe().get_planet("Planet_1")
+
         #self.planet0 = planet.Planet(200, 200)
         #self.planet1 = planet.Planet(103.54, 103.54)
 
@@ -119,12 +156,20 @@ class TestShipMethods(unittest.TestCase):
         FastShip.id = 0
         SlowShip.id = 0
         planet.Planet.id = 0
+        self.planet_0.ships = []
+        self.planet_1.ships = []
 
     def test_init(self):
         self.assertEquals("Ship_0", self.ship0.name)
         self.assertEquals(100, self.ship0.x)
         self.assertEquals(100, self.ship0.y)
         self.assertEquals(Ship.STOPPED_SLOT, self.ship0.state)
+
+        self.assertEquals(["Planet_0"], self.ship0.dst_list)
+
+        self.ship0.run()
+        self.assertEquals(Ship.STOPPED_SLOT, self.ship0.state)
+
 
         # check the ship number increase
         self.assertEquals("Ship_1", self.ship1.name)
@@ -197,6 +242,21 @@ class TestShipMethods(unittest.TestCase):
         self.assertEquals("Message sent by FastShip_0 : leaving",
                           msg.__str__())
 
+    def test_do_go_mutiple_dst(self):
+        self.ship0.do_go("Planet_1 Planet_0")
+        self.assertEquals(["Planet_1", "Planet_0"], self.ship0.dst_list)
+        self.ship0.run()
+        self.assertEqual(self.planet_1, self.ship0.dst_site)
+
+        (self.ship0.x, self.ship0.y) = (self.planet_1.x, self.planet_1.y) # Ship is placed on Planet_1
+        self.ship0.run()        # Ask landing
+        self.planet_1.run()          # landing accepted
+        self.ship0.run()        # Process landing acceptance message
+        self.assertEqual(Ship.STOPPED_SLOT, self.ship0.state)
+
+        self.ship0.run()
+        self.assertEqual(Ship.RUNNING, self.ship0.state)
+        self.assertEqual(self.planet_0, self.ship0.dst_site)
 
 if __name__ == '__main__':
     unittest.main()

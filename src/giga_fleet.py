@@ -12,13 +12,14 @@ import re
 import planet
 import player
 import universe
+import interactive
 
 def signal_handler(signal, frame):
     print('You pressed Ctrl+C!')
     sys.exit(0)
 
 
-class GigaFleetCmd(cmd.Cmd):
+class GigaFleetCmd(cmd.Cmd, interactive.Interactive):
     def __init__(self):
         cmd.Cmd.__init__(self)
         self.focus = []
@@ -67,16 +68,28 @@ class GigaFleetCmd(cmd.Cmd):
         self.update_prompt()
 
     def do_status(self, param):
-        self.focus[-1].do_status(param)
-        #print(self.cur_player.status())
+        if len(self.focus) > 0 :
+            self.focus[-1].do_status(param)
+        else:
+            super().do_status("")
 
     def do_go(self, param):
-        self.focus[-1].do_go(param)
-        #print(self.cur_player.status())
+        if len(self.focus) > 0 :
+            self.focus[-1].do_go(param)
+        else:
+            super().do_trace("")
 
     def do_list(self, param):
-        self.focus[-1].do_list(param)
-        #print(self.cur_player.status())
+        if len(self.focus) > 0 :
+            self.focus[-1].do_list(param)
+        else:
+            super().do_trace("")
+
+    def do_trace(self, param):
+        if len(self.focus) > 0 :
+            self.focus[-1].do_trace(param)
+        else:
+            super().do_trace("")
 
     #FIXME no recursivity, hard linked to cur_player
     def do_add(self, param):
