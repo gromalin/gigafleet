@@ -47,6 +47,13 @@ class Universe():
             return None
         return result[0]
 
+    def get_ship(self, name):
+        result = [ship for ship in self.ships if ship.name == name]
+        if(result == []):
+            print("ship {} unknown".format(name))
+            return None
+        return result[0]
+
     def __str__(self):
             return self.name
 

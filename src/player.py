@@ -8,7 +8,7 @@ import planet
 import universe
 import ship
 import interactive
-
+import fleet
 
 class Player (interactive.Interactive):
 
@@ -16,6 +16,7 @@ class Player (interactive.Interactive):
         self.name = name
         self.money = 10000
         self.ships = []
+        self.fleets = []
         self.universe = universe
 
     def __str__(self):
@@ -42,6 +43,14 @@ class Player (interactive.Interactive):
         else:
             return None
 
+    #FIXME untested
+    def get_fleet(self, fleet_name):
+        fleets = [fleet for fleet in self.fleets if fleet.name == fleet_name]
+        if(len(fleets) == 1):
+            return fleets[0]
+        else:
+            return None
+
 
     def do_in(self,param):
         result =  [ship for ship in self.ships if ship.name == param]
@@ -50,8 +59,23 @@ class Player (interactive.Interactive):
         else:
             print("Ship {} not found".format(param))
 
+    def usage(self):
+        return("add ship <planet_name> <ship_class> or add fleet <fleet_name>")
+
     def do_add(self,param):
-        self.buy_ship(param.partition(" ")[0],param.partition(" ")[2])
+
+        params = param.split(" ")
+        if len(params) < 2:
+            print(self.usage())
+            return
+        if(params[0] == "ship"):
+            self.buy_ship(params[1], params[2])
+        if(params[0] == "fleet"):
+            self.add_fleet(params[1])
+
+    #FIXME : pas testé et crade
+    def add_fleet(self, name):
+        self.fleets.append(fleet.Fleet(self,name))
 
     def buy_ship(self,planet_name, ship_class_name):
         planet = self.universe.get_planet(planet_name)

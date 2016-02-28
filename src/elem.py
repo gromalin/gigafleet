@@ -5,13 +5,16 @@ import queue
 import unittest
 import math
 
-class Elem:
+import interactive
+
+class Elem(interactive.Interactive):
     id = 0
 
     def distance (e1, e2):
         return math.sqrt((e2.x-e1.x)**2 + (e2.y - e1.y)**2)
 
     def __init__(self, x, y):
+        interactive.Interactive.__init__(self)
         self.name = "{}_{}".format(self.__class__.__name__, self.__class__.id)
         self.x = x
         self.y = y
@@ -32,7 +35,7 @@ class Elem:
 
     def get_msg(self):
         try:
-            return self.queue.get(False)
+            yield self.queue.get(False)
         except queue.Empty:
             #      print "Queue vide"
             return None

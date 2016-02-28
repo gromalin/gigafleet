@@ -5,7 +5,7 @@ import unittest
 
 import giga_site
 import ship
-
+import interactive
 
 class Planet(giga_site.GigaSite):
     id = 0

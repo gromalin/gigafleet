@@ -22,6 +22,7 @@ def signal_handler(signal, frame):
 class GigaFleetCmd(cmd.Cmd, interactive.Interactive):
     def __init__(self):
         cmd.Cmd.__init__(self)
+        interactive.Interactive.__init__(self)
         self.focus = []
         self.cur_universe = universe.Universe.get_universe()
 
@@ -40,7 +41,7 @@ class GigaFleetCmd(cmd.Cmd, interactive.Interactive):
 
     def do_in(self, param):
 
-        regex = re.compile('^(planet|ship).*')
+        regex = re.compile('^(planet|ship|fleet).*')
         if not regex.match(param):
             return self.usage()
 
@@ -57,9 +58,13 @@ class GigaFleetCmd(cmd.Cmd, interactive.Interactive):
                 if(planet is not None):
                     self.focus.append(planet)
             elif(params[0] == "ship"):
-                ship = self.cur_player.get_ship(params[2])
+                ship = self.cur_universe.get_ship(params[2])
                 if(ship is not None):
                     self.focus.append(ship)
+            elif(params[0] == "fleet"):
+                fleet = self.cur_player.get_fleet(params[2])
+                if(fleet is not None):
+                    self.focus.append(fleet)
         self.update_prompt()
 
     def do_exit(self, param):
@@ -93,7 +98,10 @@ class GigaFleetCmd(cmd.Cmd, interactive.Interactive):
 
     #FIXME no recursivity, hard linked to cur_player
     def do_add(self, param):
-        self.cur_player.do_add(param)
+        if len(self.focus) > 0 :
+            self.focus[-1].do_add(param)
+        else:
+            self.cur_player.do_add(param)
         #print(self.cur_player.status())
 
     def do_ships(self, param):

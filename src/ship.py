@@ -10,7 +10,7 @@ import planet
 import interactive
 import universe
 
-class Ship(elem.Elem, interactive.Interactive):
+class Ship(elem.Elem):
     id = 0
     speed = 1
     price = 0
@@ -40,9 +40,7 @@ class Ship(elem.Elem, interactive.Interactive):
         self.trace = False
 
     def do_go(self, param):
-
         self.dst_list = param.split(" ")
-
 
     def __str__(self):
         return self.name
@@ -50,9 +48,6 @@ class Ship(elem.Elem, interactive.Interactive):
     def status(self):
         return "{} (speed : {}, price : {}, dest site: {}, state : {})".format(
             super(Ship, self).status(), self.speed, self.price, self.dst_site, Ship.state_text[self.state])
-
-    def do_trace(self, param):
-        self.trace = not self.trace
 
     def do_status(self, param):
         print(self.status())
@@ -108,9 +103,18 @@ class Ship(elem.Elem, interactive.Interactive):
                 self.state = Ship.STOPPED_WAITING
 
         elif(self.state == Ship.STOPPED_WAITING):
-            msg = self.get_msg()
-            if(msg is not None and msg.type == message.Message.LANDING_ACCEPTED and msg.sender == self.dst_site ):
-                self.state = Ship.STOPPED_SLOT
+            #msg = self.get_msg()
+            for msg in self.get_msg():
+                if(msg is not None and msg.type == message.Message.LANDING_ACCEPTED and msg.sender == self.dst_site ):
+                    self.state = Ship.STOPPED_SLOT
+                    return
+
+            if self.dst_site.__str__() != self.dst_list[0]: # if destination has changed
+                self.dst_site.post_msg(message.Message(self, message.Message.LEAVING))
+                self.state = Ship.RUNNING
+                return
+
+            self.dst_site.post_msg(message.Message(self, message.Message.LANDING_REQUEST))
 
 
 
@@ -217,7 +221,7 @@ class TestShipMethods(unittest.TestCase):
         (self.fast_ship0.x, self.fast_ship0.y) = (200,200)
         self.fast_ship0.run()
         self.assertEquals(Ship.STOPPED_WAITING, self.fast_ship0.state)
-        msg = universe.Universe.get_universe().get_planet("Planet_1").get_msg()
+        msg = next(universe.Universe.get_universe().get_planet("Planet_1").get_msg())
         self.assertEquals("Message sent by FastShip_0 : landing request",
                           msg.__str__())
 
@@ -225,7 +229,7 @@ class TestShipMethods(unittest.TestCase):
         universe.Universe.get_universe().get_planet("Planet_1").post_msg(msg)
         universe.Universe.get_universe().get_planet("Planet_1").run()
 
-        msg = self.fast_ship0.get_msg()
+        msg = next(self.fast_ship0.get_msg())
 
         self.assertEquals("Message sent by Planet_1 : landing accepted",
                           msg.__str__())
@@ -237,7 +241,7 @@ class TestShipMethods(unittest.TestCase):
 
         self.fast_ship0.do_go("Planet_0")
         self.fast_ship0.run()
-        msg = universe.Universe.get_universe().get_planet("Planet_1").get_msg()
+        msg = next(universe.Universe.get_universe().get_planet("Planet_1").get_msg())
 
         self.assertEquals("Message sent by FastShip_0 : leaving",
                           msg.__str__())
