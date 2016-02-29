@@ -4,6 +4,8 @@
 import queue
 import unittest
 import math
+from datetime import datetime, date, time
+
 
 import interactive
 
@@ -19,26 +21,39 @@ class Elem(interactive.Interactive):
         self.x = x
         self.y = y
         self.queue = queue.Queue()
+        self.log = []
 
     def __str__(self):
         return self.name
+
+    def add_log(self, line):
+        self.log.append("{} {} : {}".format(datetime.now(), self.name, line))
+
+    def do_log(self,param):
+        for line in self.log:
+            print("{}".format(line))
 
     def get_pos(self):
         return (self.x, self.y)
 
     def post_msg(self, msg):
-        print(msg)
+        #print(msg)
+        msg.sender.add_log("{} posted".format(msg.__str__()))
         self.queue.put(msg)
 
     def status(self):
         return "{} ({:.0f},{:.0f})".format(self.name, self.x, self.y)
 
     def get_msg(self):
-        try:
-            yield self.queue.get(False)
-        except queue.Empty:
-            #      print "Queue vide"
-            return None
+
+        while True:
+            try:
+                msg = self.queue.get(False)
+                self.add_log("{} accessed".format(msg.__str__()))
+                yield msg
+            except queue.Empty:
+                #      print "Queue vide"
+                return
 
 
 class TestElemMethods(unittest.TestCase):
@@ -58,6 +73,17 @@ class TestElemMethods(unittest.TestCase):
 
     def test_distance(self):
         self.assertAlmostEqual(141, Elem.distance(self.elem0, self.elem1),0)
+
+    def test_multiple_messages(self):
+        for it in range(5):
+            self.elem1.post_msg("message {}".format(it))
+        iterator = self.elem1.get_msg()
+        nb_msg = 0
+        for msg in iterator:
+            nb_msg = nb_msg + 1
+        self.assertEqual(5, nb_msg)
+
+
 
 if __name__ == '__main__':
     unittest.main()

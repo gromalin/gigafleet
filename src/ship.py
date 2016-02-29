@@ -69,6 +69,7 @@ class Ship(elem.Elem):
                 self.dst_list.append(old_dst)
 
             if self.dst_site.__str__() != self.dst_list[0]: # if destination has changed
+                self.add_log("destination is now {}".format(self.dst_site))
                 self.dst_site.post_msg(message.Message(self, message.Message.LEAVING))
                 self.state = Ship.RUNNING
 
@@ -80,6 +81,7 @@ class Ship(elem.Elem):
                 self.dst_site = universe.Universe.get_universe().get_planet(self.dst_list[0])
                 if(self.dst_site == None):
                     self.state == Ship.UNREACH_DST
+                    self.log("unreachable destination : {}".format(self.dst_site))
 
             (go_x, go_y) = self.dst_site.get_pos()
             distance = elem.Elem.distance(self, self.dst_site)
@@ -115,10 +117,6 @@ class Ship(elem.Elem):
                 return
 
             self.dst_site.post_msg(message.Message(self, message.Message.LANDING_REQUEST))
-
-
-
-
 
 class SlowShip(Ship):
     speed = 1
@@ -187,6 +185,14 @@ class TestShipMethods(unittest.TestCase):
     def test_status(self):
         self.assertEqual("Ship_0 (100,100) (speed : 1, price : 0, dest site: Planet_0, state : ship stopped on a slot)", self.ship0.status())
 
+    def test_log(self):
+        self.ship0.do_go("Planet_1")
+        self.ship0.run()
+        #self.assertEqual("Destination is now", self.ship0.log[0])
+        self.assertTrue(self.ship0.log[0].find("Ship_0 : destination is now Planet_0") != -1)
+
+
+
     def test_do_go(self):
         self.ship0.do_go("Planet_1")
         self.assertEquals(self.ship0.x, 100)
@@ -222,7 +228,7 @@ class TestShipMethods(unittest.TestCase):
         self.fast_ship0.run()
         self.assertEquals(Ship.STOPPED_WAITING, self.fast_ship0.state)
         msg = next(universe.Universe.get_universe().get_planet("Planet_1").get_msg())
-        self.assertEquals("Message sent by FastShip_0 : landing request",
+        self.assertEquals("Message from FastShip_0 : landing request",
                           msg.__str__())
 
         # On remet le message et on runne
@@ -231,7 +237,7 @@ class TestShipMethods(unittest.TestCase):
 
         msg = next(self.fast_ship0.get_msg())
 
-        self.assertEquals("Message sent by Planet_1 : landing accepted",
+        self.assertEquals("Message from Planet_1 : landing accepted",
                           msg.__str__())
         # On remet le message et on runne
         self.fast_ship0.post_msg(msg)
@@ -243,7 +249,7 @@ class TestShipMethods(unittest.TestCase):
         self.fast_ship0.run()
         msg = next(universe.Universe.get_universe().get_planet("Planet_1").get_msg())
 
-        self.assertEquals("Message sent by FastShip_0 : leaving",
+        self.assertEquals("Message from FastShip_0 : leaving",
                           msg.__str__())
 
     def test_do_go_mutiple_dst(self):

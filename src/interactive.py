@@ -22,6 +22,11 @@ class Interactive(object):
         return
 
     @abc.abstractmethod
+    def do_log(self, param):
+        print("No log command available")
+        return
+
+    @abc.abstractmethod
     def do_status(self, param):
         print("No status command available")
         return

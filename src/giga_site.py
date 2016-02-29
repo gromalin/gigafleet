@@ -27,7 +27,7 @@ class GigaSite(elem.Elem):
             if (msg.type == message.Message.LANDING_REQUEST):
                 if (len(self.slots) == self.slots_nb):
                     if(self.trace):
-                        print("{} -> {} : plus de slots disponibles".format(
+                        self.add_log("{} -> {} : plus de slots disponibles".format(
                             self.name, msg.sender.name))
                     msg.sender.post_msg(message.Message(
                         self, message.Message.LANDING_REFUSED))
@@ -43,7 +43,7 @@ class GigaSite(elem.Elem):
                 self.slots.append(msg.sender)
             elif(msg.type == message.Message.LEAVING):
                 self.slots.remove(msg.sender)
-                print("occupied slots : {}, available slots : {}".format(len(self.slots),self.slots_nb - len(self.slots)))
+                self.add_log("occupied slots : {}, available slots : {}".format(len(self.slots),self.slots_nb - len(self.slots)))
 import ship
 import universe
 

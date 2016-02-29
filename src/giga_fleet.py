@@ -96,6 +96,12 @@ class GigaFleetCmd(cmd.Cmd, interactive.Interactive):
         else:
             super().do_trace("")
 
+    def do_log(self, param):
+        if len(self.focus) > 0 :
+            self.focus[-1].do_log(param)
+        else:
+            super().do_log("")
+
     #FIXME no recursivity, hard linked to cur_player
     def do_add(self, param):
         if len(self.focus) > 0 :

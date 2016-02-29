@@ -29,7 +29,7 @@ class Message:
         self.content = content
 
     def __str__(self):
-        return "Message from {} : {}".format(self.sender.name, Message.msg_text[self.type])
+        return "message from {} : {}".format(self.sender.name, Message.msg_text[self.type])
 
 class TestMessageMethods(unittest.TestCase):
 

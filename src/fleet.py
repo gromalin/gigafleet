@@ -26,6 +26,9 @@ class Fleet(interactive.Interactive):
     def do_trace(self,param):
         [it.do_trace(param) for it in self.ships]
 
+    def __str__(self):
+        return self.name
+
     def do_go(self, param):
         for ship_it in self.ships:
             ship_it.do_go(param)
