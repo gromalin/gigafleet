@@ -61,9 +61,10 @@ class TestGigaSiteMethods(unittest.TestCase):
 
     def test_message(self):
 
-        self.site.post_msg("hello")
+        self.site.post_msg(message.Message(self.ship0, message.Message.LEAVING, "Goodbye"))
         msg = next(self.site.get_msg())
-        self.assertEquals(msg, "hello")
+        self.assertEquals(message.Message.LEAVING, msg.type)
+        self.assertEqual("Goodbye", msg.content)
 
         self.site.post_msg(message.Message(self.ship0, message.Message.LANDING_REQUEST))
         self.site.run()

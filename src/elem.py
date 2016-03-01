@@ -55,7 +55,7 @@ class Elem(interactive.Interactive):
                 #      print "Queue vide"
                 return
 
-
+import message
 class TestElemMethods(unittest.TestCase):
     elem0 = None
     elem1 = None
@@ -76,7 +76,7 @@ class TestElemMethods(unittest.TestCase):
 
     def test_multiple_messages(self):
         for it in range(5):
-            self.elem1.post_msg("message {}".format(it))
+            self.elem1.post_msg(message.Message(self.elem0,message.Message.LEAVING))
         iterator = self.elem1.get_msg()
         nb_msg = 0
         for msg in iterator:

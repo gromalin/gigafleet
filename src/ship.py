@@ -228,7 +228,7 @@ class TestShipMethods(unittest.TestCase):
         self.fast_ship0.run()
         self.assertEquals(Ship.STOPPED_WAITING, self.fast_ship0.state)
         msg = next(universe.Universe.get_universe().get_planet("Planet_1").get_msg())
-        self.assertEquals("Message from FastShip_0 : landing request",
+        self.assertEquals("message from FastShip_0 : landing request",
                           msg.__str__())
 
         # On remet le message et on runne
@@ -237,7 +237,7 @@ class TestShipMethods(unittest.TestCase):
 
         msg = next(self.fast_ship0.get_msg())
 
-        self.assertEquals("Message from Planet_1 : landing accepted",
+        self.assertEquals("message from Planet_1 : landing accepted",
                           msg.__str__())
         # On remet le message et on runne
         self.fast_ship0.post_msg(msg)
@@ -249,7 +249,7 @@ class TestShipMethods(unittest.TestCase):
         self.fast_ship0.run()
         msg = next(universe.Universe.get_universe().get_planet("Planet_1").get_msg())
 
-        self.assertEquals("Message from FastShip_0 : leaving",
+        self.assertEquals("message from FastShip_0 : leaving",
                           msg.__str__())
 
     def test_do_go_mutiple_dst(self):
