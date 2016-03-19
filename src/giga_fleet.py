@@ -28,6 +28,10 @@ class GigaFleetCmd(cmd.Cmd, interactive.Interactive):
 
         self.cur_player = player.Player("Thomas", self.cur_universe)
         self.update_prompt()
+        self.do_add("fleet Fleet_0")
+        self.do_in("fleet Fleet_0")
+        self.do_add("Planet_0 30 FastShip")
+        self.do_go("Planet_1 Planet_0")
 
 
     def update_prompt(self):
@@ -172,19 +176,11 @@ class TestGigaFleetCmdMethods(unittest.TestCase):
 if __name__ == '__main__':
 
     signal.signal(signal.SIGINT, signal_handler)
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--unit", help="tests unitaires")
-    args = parser.parse_args()
 
-    if args.unit:
-        runner = unittest.TextTestRunner()
-        itersuite = unittest.TestLoader().loadTestsFromTestCase(TestGigaFleetCmdMethods)
-        runner.run(itersuite)
-    else:
-
-        cmd = GigaFleetCmd()
-        t = threading.Thread(target=universe.worker, args=(cmd.cur_universe,))
-        t.daemon = True
-        t.start()
-
-        cmd.cmdloop()
+    cmd = GigaFleetCmd()
+    t = threading.Thread(target=universe.worker, args=(cmd.cur_universe,))
+    daemon = True
+    t.start()
+    if sys.stdout.isatty():
+        "Demarrage"
+        #cmd.cmdloop()
