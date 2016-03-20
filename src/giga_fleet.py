@@ -182,5 +182,4 @@ if __name__ == '__main__':
     daemon = True
     t.start()
     if sys.stdout.isatty():
-        "Demarrage"
-        #cmd.cmdloop()
+        cmd.cmdloop()
