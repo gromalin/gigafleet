@@ -20,6 +20,6 @@ ENV LANG fr_FR.UTF8
 
 COPY src src
 
-
+EXPOSE 5000
 
 CMD /usr/bin/python3 src/giga_fleet.py

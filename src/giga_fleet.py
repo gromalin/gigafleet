@@ -9,6 +9,7 @@ import threading
 import unittest
 import re
 from flask import Flask
+app = Flask(__name__)
 
 
 import planet
@@ -90,6 +91,7 @@ class GigaFleetCmd(cmd.Cmd, interactive.Interactive):
             self.focus[-1].do_go(param)
         else:
             super().do_trace("")
+
 
     def do_list(self, param):
         if len(self.focus) > 0 :
@@ -176,6 +178,18 @@ class TestGigaFleetCmdMethods(unittest.TestCase):
         self.assertEqual("Thomas@VoieLactée/>",self.giga_cmd.prompt)
         self.assertEqual([],self.giga_cmd.focus)
 
+@app.route('/')
+def hello_world():
+    return 'Welcome to Giga Fleet'
+
+@app.route('/planets')
+def get_planets():
+    return universe.Universe.get_universe().list_planets()
+
+@app.route('/ship/<shipname>')
+def get_ship(shipname):
+    return universe.Universe.get_universe().get_ship(shipname).status()
+
 if __name__ == '__main__':
 
     signal.signal(signal.SIGINT, signal_handler)
@@ -184,5 +198,7 @@ if __name__ == '__main__':
     t = threading.Thread(target=universe.worker, args=(cmd.cur_universe,))
     daemon = True
     t.start()
+    #app.run(host='0.0.0.0')
     if sys.stdout.isatty():
         cmd.cmdloop()
+
