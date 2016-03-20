@@ -8,6 +8,8 @@ import sys
 import threading
 import unittest
 import re
+from flask import Flask
+
 
 import planet
 import player
@@ -32,6 +34,7 @@ class GigaFleetCmd(cmd.Cmd, interactive.Interactive):
         self.do_in("fleet Fleet_0")
         self.do_add("Planet_0 30 FastShip")
         self.do_go("Planet_1 Planet_0")
+        self.do_exit("")
 
 
     def update_prompt(self):
