@@ -8,7 +8,7 @@ import sys
 import threading
 import unittest
 import re
-from flask import Flask
+from flask import Flask, jsonify
 app = Flask(__name__)
 
 
@@ -188,7 +188,10 @@ def get_planets():
 
 @app.route('/ship/<shipname>')
 def get_ship(shipname):
-    return universe.Universe.get_universe().get_ship(shipname).status()
+
+    #return universe.Universe.get_universe().get_ship(shipname).status() + universe.Universe.get_universe().get_ship(shipname).get_log()
+    return jsonify(universe.Universe.get_universe().get_ship(shipname).dict_status)
+
 
 if __name__ == '__main__':
 
@@ -198,7 +201,7 @@ if __name__ == '__main__':
     t = threading.Thread(target=universe.worker, args=(cmd.cur_universe,))
     daemon = True
     t.start()
-    #app.run(host='0.0.0.0')
+    app.run(host='0.0.0.0')
     if sys.stdout.isatty():
         cmd.cmdloop()
 

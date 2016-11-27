@@ -49,6 +49,20 @@ class Ship(elem.Elem):
         return "{} (speed : {}, price : {}, dest site: {}, state : {})".format(
             super(Ship, self).status(), self.speed, self.price, self.dst_site, Ship.state_text[self.state])
 
+    @property
+    def dict_status(self):
+        result = {}
+        result["name"] = self.name
+        result["speed"] =  str(self.speed)
+        result["price"] = str(self.price)
+        result["dst_site"] = self.dst_site.__str__()
+        result["state"] = Ship.state_text[self.state]
+        result["x"] = str(self.x)
+        result["y"] = str(self.y)
+        return result
+
+        return {"speed" : super(Ship, self).status(), }
+
     def do_status(self, param):
         print(self.status())
 
@@ -251,6 +265,18 @@ class TestShipMethods(unittest.TestCase):
 
         self.assertEquals("message from FastShip_0 : leaving",
                           msg.__str__())
+
+    def test_dict_status(self):
+        result = self.ship0.dict_status
+        self.assertEqual("Ship_0", result["name"])
+        self.assertEqual("1", result["speed"])
+        self.assertEqual("0", result["price"])
+        self.assertEqual("Planet_0", result["dst_site"])
+        self.assertEqual("ship stopped on a slot", result["state"])
+        self.assertEqual("100", result["x"])
+        self.assertEqual("100", result["y"])
+
+
 
     def test_do_go_mutiple_dst(self):
         self.ship0.do_go("Planet_1 Planet_0")

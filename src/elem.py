@@ -29,9 +29,14 @@ class Elem(interactive.Interactive):
     def add_log(self, line):
         self.log.append("{} {} : {}".format(datetime.now(), self.name, line))
 
-    def do_log(self,param):
+    def get_log(self):
+        result = ""
         for line in self.log:
-            print("{}".format(line))
+            result = result + "{}".format(line)
+        return result
+
+    def do_log(self,param):
+        print(self.get_log())
 
     def get_pos(self):
         return (self.x, self.y)

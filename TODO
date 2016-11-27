@@ -1,5 +1,4 @@
 
-  - add a log feature for planets and ships
   - Create a portal object that communicate with other instances
   - Create a docker file for building the game
   - Find a way to create portal automatically if new container is created
